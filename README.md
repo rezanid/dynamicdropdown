@@ -7,4 +7,8 @@ DynamicDropdown for Power Platform is a drop down field component that its list 
 2. Import the solution to your desired environment.
 3. Use Dynamic Dropdown for a field in any form. The field needs to be either a Single Line Text or a Lookup.
 
+# Limitations
+* Only fields of type ***Single line of text*** and ***Lookup*** are supported
+* Currently the query that is used to fill the list part of the component can depend only on five other fields in the form.
+
 * Reference
