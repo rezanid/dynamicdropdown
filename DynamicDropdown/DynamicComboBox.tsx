@@ -1,11 +1,3 @@
-// import * as React from 'react';
-// import {
-//   ComboBox,
-//   IComboBoxOption,
-//   IComboBoxStyles,
-// } from '@fluentui/react';
-
-import { TextField } from "@fluentui/react";
 import { ComboBox, IComboBoxOption, IComboBoxStyles } from "@fluentui/react/lib/ComboBox";
 import React, { memo, useCallback, useMemo } from "react";
 
@@ -18,28 +10,16 @@ export interface DynamicComboBoxProps {
   disabled: boolean;
   masked: boolean;
   errorMessage: string | undefined;
-  onChange: (newValue: string | number) => void;
+  onChange: (newValue: string | number | null, newText: string | null) => void;
+  getKeyValue: (entity: ComponentFramework.WebApi.Entity, key: string) => string;
+  getTextValue: (entity: ComponentFramework.WebApi.Entity, text: string) => string;
 }
-
-/* Sample:
-const options: IComboBoxOption[] = 
-[
-    { key: 'Header1', text: 'First heading', itemType: SelectableOptionMenuItemType.Header },
-    { key: 'A', text: 'Option A' },
-    { key: 'B', text: 'Option B' },
-    { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-    { key: 'Header2', text: 'Second heading', itemType: SelectableOptionMenuItemType.Header },
-    { key: 'E', text: 'Option E' },
-    { key: 'F', text: 'Option F', disabled: true },
-    { key: 'J', text: 'Option J' },
-  ];
-*/
-
 const comboBoxStyles: Partial<IComboBoxStyles> = { root: { maxWidth: 300 } };
 
 export const DynamicComboBox = memo((props: DynamicComboBoxProps) => {
-  const { label, value, options, optionKeyField, optionTextField, disabled, masked, errorMessage, onChange } = props;
+  const { label, value, options, optionKeyField, optionTextField, disabled, masked, errorMessage, onChange, getKeyValue: keyValueExtractor, getTextValue: textValueExtractor } = props;
   const valueKey = value != null ? value.toString() : undefined;
+  let isValueKeyFound = false;
 
   const items = useMemo(() => {
     if (errorMessage) {
@@ -60,9 +40,14 @@ export const DynamicComboBox = memo((props: DynamicComboBoxProps) => {
       error: undefined,
       choices: 
         options.map((item) => {
+          let key = undefined;
+          if (valueKey && !isValueKeyFound) { 
+            key = keyValueExtractor(item, optionKeyField);
+            isValueKeyFound = key == valueKey;
+          }
           return {
-            key: optionKeyField.indexOf('$') > -1 ? optionKeyField.replace(/\${([\w_]+)}/gm, (_,m)=> item[m]) : item[optionKeyField],
-            text: optionTextField.indexOf('$') > -1 ? optionTextField.replace(/\${([\w_]+)}/gm, (_,m)=> item[m]) : item[optionTextField]
+            key: key ?? keyValueExtractor(item, optionKeyField),
+            text: textValueExtractor(item, optionTextField)
           } as IComboBoxOption;
         })
     };
@@ -70,10 +55,14 @@ export const DynamicComboBox = memo((props: DynamicComboBoxProps) => {
 
   const onChangeComboBox = useCallback(
     (ev?: unknown, option?: IComboBoxOption): void => {
-      onChange(option ? (option.key) : '')
+      if (option) {
+        onChange(option.key, option.text)
+      }
     },
     [onChange]
   );
+
+  if (valueKey && !isValueKeyFound) { onChange(null, null); }
 
   return (
     <>
