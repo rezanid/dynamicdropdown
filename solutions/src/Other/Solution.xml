@@ -5,15 +5,15 @@
     <UniqueName>DynamicDropDown</UniqueName>
     <LocalizedNames>
       <!-- Localized Solution Name in language code -->
-      <LocalizedName description="Dynamic Dropdown for Power Platform" languagecode="1033" />
+      <LocalizedName description="Dynamic Dropdown" languagecode="1033" />
     </LocalizedNames>
     <Descriptions />
-    <Version>1.0</Version>
+    <Version>1.1.24</Version>
     <!-- Solution Package Type: Unmanaged(0)/Managed(1)/Both(2)-->
     <Managed>2</Managed>
     <Publisher>
       <!-- Unique Publisher Name of Cds Solution -->
-      <UniqueName>Reza Niroomand</UniqueName>
+      <UniqueName>RezaNiroomand</UniqueName>
       <LocalizedNames>
         <!-- Localized Cds Publisher Name in language code-->
         <LocalizedName description="Reza Niroomand" languagecode="1033" />

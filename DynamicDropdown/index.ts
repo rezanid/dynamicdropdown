@@ -6,7 +6,7 @@ import { DynamicComboBox } from './DynamicComboBox';
 export class DynamicDropdown implements ComponentFramework.StandardControl<IInputs, IOutputs> {
     private notifyOutputChanged: () => void;
     rootContainer: HTMLDivElement;
-    selectedValue: string | number;
+    selectedValue: string | number | ComponentFramework.LookupValue[] | null;
     context: ComponentFramework.Context<IInputs>;
 
     /**
@@ -54,35 +54,46 @@ export class DynamicDropdown implements ComponentFramework.StandardControl<IInpu
         type possibleQueryValueNames = 'queryValue1' | 'queryValue2' | 'queryValue3' | 'queryValue4' | 'queryValue5';
 
         const getQueryValue = (_: string, index: any) => {
-            const queryValue = queryValues['queryValue' + index as possibleQueryValueNames]; 
+            const queryValue = queryValues['queryValue' + index as possibleQueryValueNames];
             if (queryValue.type == 'Lookup.Simple') {
                 const value = (queryValue as ComponentFramework.PropertyTypes.LookupProperty).raw
-                return value ? value[0].id : null;
+                return value && value.length > 0 ? value[0].id : '00000000-0000-0000-0000-000000000000';
             }
             return queryValue.raw;
         }
         
         if (value && value.attributes && query && entityType.raw && query.raw) {
             const q = queryValues ? query.raw.replace(/\${(\d+)}/gm, getQueryValue) : query.raw;
-            let p = context.webAPI.retrieveMultipleRecords(entityType.raw, q).then(
-                (value) => { options = value.entities; },
+            const p = context.webAPI.retrieveMultipleRecords(entityType.raw, q).then(
+                (val) => { 
+                    options = val.entities;
+                    // const valueToMatch = this.tryGetLookupId(value) ?? value.raw;
+                    // const isValueFound = valueToMatch == null || valueField !== null && valueField.raw !== null && val.entities.some((entity) => entity[valueField.raw ?? ''] == valueToMatch);
+                    // if (!isValueFound) {
+                    //     this.selectedValue = null;
+                    //     this.notifyOutputChanged();
+                    // }
+                },
                 (error) => { errorMessage = error.message; }
             );
+
+            const getAttributeValue = (entity: ComponentFramework.WebApi.Entity, attribute: string): string => entity[attribute];
+            const getAttributeValueRegEx = (entity: ComponentFramework.WebApi.Entity, attribute: string): string => attribute.replace(/\${([\w_]+)}/gm, (_,m)=> entity[m]);        
 
             p.then(() => {
                 ReactDOM.render(
                     React.createElement(DynamicComboBox, {
-                        //label: value.attributes.DisplayName,
                         label : '',
-                        value: value.raw,
-                        /* fetch list from webApi / fetchXml, then map and return it. */
+                        value: this.tryGetLookupId(value) ?? value.raw,
                         options: options,
                         optionKeyField: valueField.raw,
                         optionTextField: textField.raw,
                         disabled: disabled,
                         masked: masked,
                         errorMessage: errorMessage,                    
-                        onChange: this.onChange,
+                        onChange: value.type == 'Lookup.Simple' ? this.onChangeLookup : this.onChange,
+                        getKeyValue: valueField.raw && valueField.raw.indexOf('$') > -1 ? getAttributeValueRegEx : getAttributeValue,
+                        getTextValue: textField.raw && textField.raw.indexOf('$') > -1 ? getAttributeValueRegEx : getAttributeValue
                     }),
                     this.rootContainer,
                 );
@@ -90,9 +101,14 @@ export class DynamicDropdown implements ComponentFramework.StandardControl<IInpu
         }
     }
 
+    tryGetLookupId = (value : ComponentFramework.PropertyTypes.Property) => {
+        if (value == null || value.type !== 'Lookup.Simple' || value.raw == null) { return null; } 
+        const lookupValue = value as ComponentFramework.PropertyTypes.LookupProperty;
+        return (lookupValue.raw.length == 0) ? null : lookupValue.raw[0].id;
+    }
+
     retrieveOption = async (entityType: string, query: string, webAPI: ComponentFramework.WebApi): Promise<any> => {
         if (!entityType || !query) { return; }
-        
         try {
             const t = await webAPI.retrieveMultipleRecords(entityType, query);
             return { options: t.entities }
@@ -101,10 +117,22 @@ export class DynamicDropdown implements ComponentFramework.StandardControl<IInpu
         }
     }
 
-    onChange = (newValue: string | number): void => {
+    onChange = (newValue: string | number | null, newText: string | null): void => {
         this.selectedValue = newValue;
         this.notifyOutputChanged();
     };
+
+    onChangeLookup = (newValue: string | number | null, newText: string | null): void => {
+        this.selectedValue = (newValue == null) ? [{} as ComponentFramework.LookupValue]  :
+            [
+                {
+                    id: newValue, 
+                    name: newText, 
+                    entityType: (this.context.parameters.value as ComponentFramework.PropertyTypes.LookupProperty).getTargetEntityType()
+                } as ComponentFramework.LookupValue
+            ];
+        this.notifyOutputChanged();
+    }
 
     /**
      * It is called by the framework prior to a control receiving new data.

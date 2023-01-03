@@ -121,7 +121,7 @@
     <value>Dynamic Dropdown</value>
     <comment/>
   </data>
-  <data name="DynamicDropdown_Desc" xml:space="preserve">
+  <data name="DynamicDropDown_Desc" xml:space="preserve">
     <value>Displays a drop-down control with a list that can be filled based on a query that can depend on the value of other fields.</value>
     <comment/>
   </data>

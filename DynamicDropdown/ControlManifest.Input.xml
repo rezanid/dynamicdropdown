@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest>
-  <control namespace="be" constructor="DynamicDropdown" version="0.0.1" display-name-key="DynamicDropdown_Display" description-key="DynamicDropDown_Desc" control-type="standard" >
+  <control namespace="rn" constructor="DynamicDropdown" version="0.0.1" display-name-key="DynamicDropdown_Display" description-key="DynamicDropDown_Desc" control-type="standard" >
     <!--external-service-usage node declares whether this 3rd party PCF control is using external service or not, if yes, this control will be considered as premium and please also add the external domain it is using.
     If it is not using any external service, please set the enabled="false" and DO NOT add any domain below. The "enabled" will be false by default.
     Example1:
@@ -18,7 +18,7 @@
       -->
     </external-service-usage>
     <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
-    <property name="value" display-name-key="Value_Display" description-key="Value_Desc" of-type="SingleLine.Text" usage="bound" required="true"/>
+    <property name="value" display-name-key="Value_Display" description-key="Value_Desc" of-type-group="ValueType" usage="bound" required="true"/>
     <property name="entityType" display-name-key="EntityType_Display" description-key="EntityType_Desc" of-type="SingleLine.Text" usage="input" required="true" />
     <property name="query" display-name-key="Query_Display" description-key="Query_Desc" of-type="SingleLine.Text" usage="input" required="true" />
     <property name="textField" display-name-key="TextField_Display" description-key="TextField_Desc" of-type="SingleLine.Text" usage="input" required="true" />
@@ -39,6 +39,10 @@
       </type-group>
       <property name="sampleProperty" display-name-key="Property_Display_Key" description-key="Property_Desc_Key" of-type-group="numbers" usage="bound" required="true" />
     -->
+    <type-group name="ValueType">
+      <type>SingleLine.Text</type>
+      <type>Lookup.Simple</type>
+    </type-group>
     <type-group name="QueryValueType">
       <type>SingleLine.Text</type>
       <type>Lookup.Simple</type>
