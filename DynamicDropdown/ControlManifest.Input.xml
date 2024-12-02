@@ -20,7 +20,7 @@
     <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
     <property name="value" display-name-key="Value_Display" description-key="Value_Desc" of-type-group="ValueType" usage="bound" required="true"/>
     <property name="entityType" display-name-key="EntityType_Display" description-key="EntityType_Desc" of-type="SingleLine.Text" usage="input" required="true" />
-    <property name="query" display-name-key="Query_Display" description-key="Query_Desc" of-type="SingleLine.Text" usage="input" required="true" />
+    <property name="query" display-name-key="Query_Display" description-key="Query_Desc" of-type-group="Text" usage="input" required="true" />
     <property name="textField" display-name-key="TextField_Display" description-key="TextField_Desc" of-type="SingleLine.Text" usage="input" required="true" />
     <property name="valueField" display-name-key="ValueField_Display" description-key="ValueField_Desc" of-type="SingleLine.Text" usage="input" required="true" />
     <property name="queryValue1" display-name-key="QueryValue1_Display" description-key="QueryValue1_Desc" of-type-group="QueryValueType" usage="input" required="false" />
@@ -39,6 +39,11 @@
       </type-group>
       <property name="sampleProperty" display-name-key="Property_Display_Key" description-key="Property_Desc_Key" of-type-group="numbers" usage="bound" required="true" />
     -->
+    <type-group name="Text">
+      <type>SingleLine.Text</type>
+      <type>Multiple</type>
+      <type>SingleLine.TextArea</type>
+    </type-group>
     <type-group name="ValueType">
       <type>SingleLine.Text</type>
       <type>Lookup.Simple</type>
